@@ -12,9 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return date('Y-m-d H:i:s');
 });
 
-Route::auth();
-
-Route::get('/home', 'HomeController@index');
+Route::post('/upload', 'MainController@upload');
