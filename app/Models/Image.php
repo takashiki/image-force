@@ -53,25 +53,6 @@ class Image extends \Eloquent
         static::created(function (Image $image) {
             dispatch(new DuplicateImage($image));
         });
-
-        static::fetched(function (Image $image) {
-            dispatch(new CheckImage($image));
-        });
-    }
-
-    public static function find($id, $columns = array('*'))
-    {
-        if (is_array($id) && empty($id)) {
-            return new Collection();
-        }
-
-        $instance = new static();
-        $instance->fireModelEvent('fetching');
-
-        $result = $instance->newQuery()->find($id, $columns);
-        $instance->fireModelEvent('fetched');
-
-        return $result;
     }
 
     public static function getModel($file)
@@ -88,12 +69,11 @@ class Image extends \Eloquent
 
     public function check()
     {
-        $availableCount = 0;
         foreach ($this->getAvailableCopies() as $copy) {
-            $availableCount += $copy->getAvailability() === ImageCopies::AVAILABLE ? 1 : 0;
+            $this->copy_count -= $copy->getAvailability() !== ImageCopies::AVAILABLE ? 1 : 0;
         }
 
-        if ($availableCount < 2) {
+        if ($this->copy_count < 2) {
             $this->duplicate();
         }
     }
@@ -117,6 +97,7 @@ class Image extends \Eloquent
 
     public function getRealUrl($scheme = 'relative')
     {
+        dispatch(new CheckImage($this));
         $copy = $this->copies()->where('status', 1)->firstOrFail();
         ++$copy->access_count;
         $copy->save();

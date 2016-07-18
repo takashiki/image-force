@@ -36,6 +36,12 @@ class ImageCopies extends Model
         self::HTTPS_ONLY => 'https',
     ];
 
+    protected $fillable = [
+        'image_id',
+        'storage_id',
+        'url',
+    ];
+
     protected $attributes = [
         'access_count' => 0,
     ];
