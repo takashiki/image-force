@@ -2,20 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CheckImage;
 use App\Jobs\DuplicateImage;
 use App\Models\Image;
+use Input;
+use Redirect;
 
 class MainController extends Controller
 {
     public function upload()
     {
-        $image = Image::findOrFail(1);
-        $this->dispatch(new DuplicateImage($image));
-        sleep(1);
+        $file = Input::file('file');
+        if (!$file->isValid()) {
+            return false;
+        }
+        $image = Image::getModel($file->getRealPath());
+
+        return response($image->getUrl());
     }
 
-    public function view()
+    public function view($sha1)
     {
+        $image = Image::where(['sha1' => $sha1])->firstOrFail();
 
+        Redirect::away($image->getRealUrl());
     }
 }

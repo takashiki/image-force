@@ -1,10 +1,40 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
+use App\Uploaders\NiupicUploader;
+use App\Uploaders\SinaUploader;
+use App\Uploaders\SmmsUploader;
 use Illuminate\Database\Eloquent\Model;
 
 class ImageStorage extends Model
 {
-    public $timestamps = false;
+    const SMMS = 1;
+    const SINA = 2;
+    const NIUPIC = 3;
+
+    protected static $uploaders = [
+        self::SMMS => SmmsUploader::class,
+        self::SINA => SinaUploader::class,
+        self::NIUPIC => NiupicUploader::class,
+    ];
+
+    public static function getUploaders()
+    {
+        return static::$uploaders;
+    }
+
+    public static function getUploader($id)
+    {
+        return isset(static::$uploaders[$id]) ? new static::$uploaders[$id]() : false;
+    }
+
+    public static function upload($file, $storage = self::SMMS)
+    {
+        if ($uploader = static::getUploader($storage)) {
+            return $uploader->upload($file);
+        }
+
+        return false;
+    }
 }

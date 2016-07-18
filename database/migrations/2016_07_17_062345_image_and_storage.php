@@ -18,18 +18,10 @@ class ImageAndStorage extends Migration
             $table->index('sha1');
         });
 
-        Schema::create('image_storage', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('slug');
-            $table->string('label');
-            $table->string('api');
-            $table->softDeletes();
-            $table->unique('slug');
-        });
-
         Schema::create('image_copies', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('image_id');
+            $table->smallInteger('storage_id');
             $table->string('url');
             $table->integer('access_count');
             $table->timestamps();
@@ -45,7 +37,6 @@ class ImageAndStorage extends Migration
     public function down()
     {
         Schema::drop('image');
-        Schema::drop('image_storage');
         Schema::drop('image_copies');
     }
 }

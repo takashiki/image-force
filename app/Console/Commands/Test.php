@@ -43,6 +43,8 @@ class Test extends Command
         $img = '/root/img1.jpg';
         //var_dump((new SmmsUploader())->upload('/root/img1.jpg'));
         //var_dump((new SinaUploader())->upload('/root/img1.jpg'));
-        var_dump((new NiupicUploader())->upload('/root/img1.jpg'));
+        //var_dump((new NiupicUploader())->upload('/root/img1.jpg'));
+        $a = (new \GuzzleHttp\Client())->head('//www.baidu.com')->getStatusCode();
+        var_dump($a);
     }
 }

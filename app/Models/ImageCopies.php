@@ -1,10 +1,78 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\ImageCopies.
+ *
+ * @property int $id
+ * @property int $image_id
+ * @property int $storage_id
+ * @property string $url
+ * @property int $access_count
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property bool $status
+ *
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ImageCopies whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ImageCopies whereImageId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ImageCopies whereUrl($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ImageCopies whereAccessCount($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ImageCopies whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ImageCopies whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ImageCopies whereStatus($value)
+ */
 class ImageCopies extends Model
 {
-    //
+    const UNAVAILABLE = 0;
+    const HTTP_ONLY = 1;
+    const HTTPS_ONLY = 2;
+    const AVAILABLE = 3;
+
+    protected static $schemes = [
+        self::HTTP_ONLY => 'http',
+        self::HTTPS_ONLY => 'https',
+    ];
+
+    protected $attributes = [
+        'access_count' => 0,
+    ];
+
+    public static function getSchemes()
+    {
+        return static::$schemes;
+    }
+
+    public function getAvailability()
+    {
+        foreach (static::getSchemes() as $key => $scheme) {
+            $url = $this->getUrl($scheme);
+            $this->status = get_status_code($url) === 200 ? $this->status | $key : $this->status ^ $key;
+        }
+
+        return $this->status;
+    }
+
+    public function getUrl($scheme = 'relative')
+    {
+        $scheme = in_array($scheme, ImageCopies::getSchemes()) ? $scheme : \Input::getScheme();
+
+        return $scheme.'://'.$this->url;
+    }
+
+    public static function storage($image_id, $file, $storage_id = 1)
+    {
+        $url = ImageStorage::upload($file, $storage_id);
+        if ($url) {
+            return static::create([
+                'image_id' => $image_id,
+                'url' => $url,
+                'storage_id' => $storage_id,
+            ]);
+        }
+
+        return false;
+    }
 }
