@@ -44,6 +44,7 @@ class ImageCopies extends Model
 
     protected $attributes = [
         'access_count' => 0,
+        'status' => 3,
     ];
 
     public static function getSchemes()
@@ -63,22 +64,31 @@ class ImageCopies extends Model
 
     public function getUrl($scheme = 'relative')
     {
-        $scheme = in_array($scheme, ImageCopies::getSchemes()) ? $scheme : \Input::getScheme();
+        $scheme = in_array($scheme, self::getSchemes()) ? $scheme : \Input::getScheme();
 
         return $scheme.'://'.$this->url;
     }
 
-    public static function storage($image_id, $file, $storage_id = 1)
+    public static function storage(Image $image, $file, $storage_id = 1)
     {
         $url = ImageStorage::upload($file, $storage_id);
         if ($url) {
+            $image->increaseCopyCount();
+
             return static::create([
-                'image_id' => $image_id,
+                'image_id' => $image->id,
                 'url' => $url,
                 'storage_id' => $storage_id,
             ]);
         }
 
         return false;
+    }
+
+    public function increaseAccessCount()
+    {
+        ++$this->access_count;
+
+        return $this->save();
     }
 }

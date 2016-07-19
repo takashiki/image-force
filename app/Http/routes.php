@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return date('Y-m-d H:i:s');
+    return \URL::to('dsdf');
 });
 
 Route::post('/upload', 'MainController@upload');

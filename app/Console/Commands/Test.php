@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Image;
 use App\Uploaders\NiupicUploader;
 use App\Uploaders\SinaUploader;
 use App\Uploaders\SmmsUploader;
@@ -44,7 +45,7 @@ class Test extends Command
         //var_dump((new SmmsUploader())->upload('/root/img1.jpg'));
         //var_dump((new SinaUploader())->upload('/root/img1.jpg'));
         //var_dump((new NiupicUploader())->upload('/root/img1.jpg'));
-        $a = (new \GuzzleHttp\Client())->head('//www.baidu.com')->getStatusCode();
-        var_dump($a);
+        $image = Image::find(4);
+        $image->check();
     }
 }
