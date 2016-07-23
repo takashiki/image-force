@@ -25,6 +25,6 @@ class MainController extends Controller
     {
         $image = Image::where(['sha1' => $sha1])->firstOrFail();
 
-        Redirect::away($image->getRealUrl());
+        return Redirect::away($image->getRealUrl());
     }
 }

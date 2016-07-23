@@ -23,7 +23,7 @@
         "classmap": [
             "database"
         ],
-        "file": [
+        "files": [
             "app/helpers.php"
         ],
         "psr-4": {

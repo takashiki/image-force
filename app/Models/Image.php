@@ -46,13 +46,9 @@ class Image extends \Eloquent
         return $this->copies()->where('status', ImageCopies::AVAILABLE)->get();
     }
 
-    protected static function boot()
+    public function firstAvailableCopy()
     {
-        parent::boot();
-
-        static::created(function (Image $image) {
-            dispatch(new DuplicateImage($image));
-        });
+        return $this->copies()->where('status', ImageCopies::AVAILABLE)->first();
     }
 
     public static function getModel($file)
@@ -61,7 +57,8 @@ class Image extends \Eloquent
         $image = static::where(['sha1' => $sha1])->first();
         if (!$image) {
             $image = static::create(['sha1' => $sha1]);
-            ImageCopies::storage($image->id, $file);
+            ImageCopies::storage($image, $file);
+            dispatch(new DuplicateImage($image));
         }
 
         return $image;
@@ -73,20 +70,22 @@ class Image extends \Eloquent
             $this->copy_count -= $copy->getAvailability() !== ImageCopies::AVAILABLE ? 1 : 0;
         }
 
-        if ($this->copy_count < 2) {
+        if ($this->copy_count < 3) {
             $this->duplicate();
         }
     }
 
     public function duplicate()
     {
-        $copies = $this->getAvailableCopies();
-        if (empty($copies)) {
+        $copy = $this->firstAvailableCopy();
+        if (!$copy) {
             throw new \Exception('Boom!');
         }
 
         foreach (ImageStorage::getUploaders() as $id => $uploader) {
-            ImageCopies::storage($this->id, $copies[0]->getUrl, $id);
+            if (!ImageCopies::where(['image_id' => $this->id, 'storage_id' => $id])->first()) {
+                ImageCopies::storage($this, $copy->getUrl(), $id);
+            }
         }
     }
 
@@ -98,10 +97,15 @@ class Image extends \Eloquent
     public function getRealUrl($scheme = 'relative')
     {
         dispatch(new CheckImage($this));
-        $copy = $this->copies()->where('status', 1)->firstOrFail();
-        ++$copy->access_count;
-        $copy->save();
+        $copy = $this->firstAvailableCopy();
+        $copy->increaseAccessCount();
 
         return $copy->getUrl($scheme);
+    }
+
+    public function increaseCopyCount()
+    {
+        $this->copy_count++;
+        return $this->save();
     }
 }

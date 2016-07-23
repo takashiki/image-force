@@ -32,7 +32,11 @@ class ImageStorage extends Model
     public static function upload($file, $storage = self::SMMS)
     {
         if ($uploader = static::getUploader($storage)) {
-            return $uploader->upload($file);
+            try {
+                return $uploader->upload($file);
+            } catch (\Exception $e) {
+                return false;
+            }
         }
 
         return false;
