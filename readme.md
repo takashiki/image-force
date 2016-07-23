@@ -14,3 +14,31 @@ When a uploaded image is visited, it will be add to a queue to apply sync availa
 
 - PHP 7+
 
+## Install
+
+```
+git clone https://github.com/takashiki/image-force
+composer install --no-dev -o
+# or `composer create-project takashiki/image-force:@dev`
+
+cd image-force
+
+cp .env.example .env
+vi .env # adjust your settings
+
+php artisan migrate
+```
+
+add supervisor config:
+
+```
+[program:image-force-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=/path/to/php /path/to/image-force/artisan queue:work --sleep=3 --tries=3 --daemon
+autostart=true
+autorestart=true
+user=root
+environment=HOME='/root'
+redirect_stderr=true
+stdout_logfile=/path/to/image-force/worker.log
+```
