@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Jobs\CheckImage;
 use App\Jobs\DuplicateImage;
-use Illuminate\Database\Eloquent\Collection;
 
 /**
  * App\Models\Image.
@@ -57,7 +56,12 @@ class Image extends \Eloquent
         $image = static::where(['sha1' => $sha1])->first();
         if (!$image) {
             $image = static::create(['sha1' => $sha1]);
-            ImageCopies::storage($image, $file);
+        }
+
+        if ($image->copy_count < 1) {
+            if (!ImageCopies::storage($image, $file, ImageStorage::NIUPIC)) {
+                return false;
+            }
             dispatch(new DuplicateImage($image));
         }
 
@@ -105,7 +109,8 @@ class Image extends \Eloquent
 
     public function increaseCopyCount()
     {
-        $this->copy_count++;
+        ++$this->copy_count;
+
         return $this->save();
     }
 }

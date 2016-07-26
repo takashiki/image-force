@@ -13,7 +13,7 @@ class MainController extends Controller
     public function upload()
     {
         $file = Input::file('file');
-        if (!$file->isValid()) {
+        if (!$file || !$file->isValid()) {
             return false;
         }
         $image = Image::getModel($file->getRealPath());
