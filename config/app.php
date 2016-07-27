@@ -208,4 +208,6 @@ return [
         'Input' => Illuminate\Support\Facades\Input::class,
     ],
 
+    //检测图片可用性的时间间隔（单位：分钟）
+    'check_interval' => 60,
 ];
