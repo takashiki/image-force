@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return \URL::to('dsdf');
+    return 'hi';
 });
 
 Route::post('/upload', 'MainController@upload');
