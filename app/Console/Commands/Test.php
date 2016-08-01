@@ -41,11 +41,11 @@ class Test extends Command
      */
     public function handle()
     {
-        $img = '/root/img1.jpg';
+        //$img = '/root/img1.jpg';
         //var_dump((new SmmsUploader())->upload('/root/img1.jpg'));
         //var_dump((new SinaUploader())->upload('/root/img1.jpg'));
         //var_dump((new NiupicUploader())->upload('/root/img1.jpg'));
-        $image = Image::find(4);
+        $image = Image::find(4433);
         $image->check();
     }
 }

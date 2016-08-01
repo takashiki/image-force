@@ -40,6 +40,9 @@ class Image extends \Eloquent
         return $this->hasMany(\App\Models\ImageCopies::class);
     }
 
+    /**
+     * @return ImageCopies[]|null
+     */
     public function getAvailableCopies()
     {
         return $this->copies()->where('status', ImageCopies::AVAILABLE)->get();
@@ -59,7 +62,7 @@ class Image extends \Eloquent
         }
 
         if ($image->copy_count < 1) {
-            if (!ImageCopies::storage($image, $file, ImageStorage::NIUPIC)) {
+            if (!ImageCopies::storage($image, $file, ImageStorage::SMMS)) {
                 return false;
             }
             dispatch(new DuplicateImage($image));
