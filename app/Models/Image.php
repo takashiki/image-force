@@ -48,6 +48,9 @@ class Image extends \Eloquent
         return $this->copies()->where('status', ImageCopies::AVAILABLE)->get();
     }
 
+    /**
+     * @return ImageCopies|null
+     */
     public function firstAvailableCopy()
     {
         return $this->copies()->where('status', ImageCopies::AVAILABLE)->first();

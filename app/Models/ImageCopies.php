@@ -56,7 +56,9 @@ class ImageCopies extends Model
     {
         foreach (static::getSchemes() as $key => $scheme) {
             $url = $this->getUrl($scheme);
-            $this->status = get_status_code($url) === 200 ? $this->status | $key : $this->status ^ $key;
+            $this->status = get_status_code($url, config('app.check_timeout')) === 200 ?
+                $this->status | $key :
+                $this->status ^ $key;
         }
 
         return $this->status;
