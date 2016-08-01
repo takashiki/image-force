@@ -1,8 +1,9 @@
 # Image Force
 
-Image Force is a distribute image storing and availability ensuring system.
+Image Force is a duplicate image storing and availability ensuring system 
+design for small personal websites.
 
-Image Force 是一个分布式图片存储及可用性保障系统。 
+Image Force 是一个专为小型个人站点设计的图片多点存储及可用性保障系统。
 
 ## Features
  
