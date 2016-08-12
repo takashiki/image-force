@@ -19,6 +19,11 @@ class ImageStorage extends Model
         self::NIUPIC => NiupicUploader::class,
     ];
 
+    public static function count()
+    {
+        return count(static::$uploaders);
+    }
+
     public static function getUploaders()
     {
         return static::$uploaders;

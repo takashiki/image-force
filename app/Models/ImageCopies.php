@@ -52,11 +52,23 @@ class ImageCopies extends Model
         return static::$schemes;
     }
 
+    public static function avail()
+    {
+        return static::where(['status' => self::AVAILABLE]);
+    }
+
+    public function setAvailability($status)
+    {
+        $this->status = $status;
+
+        return $this->save();
+    }
+
     public function getAvailability()
     {
         foreach (static::getSchemes() as $key => $scheme) {
             $url = $this->getUrl($scheme);
-            $this->status = get_status_code($url, config('app.check_timeout')) === 200 ?
+            $this->status = is_available($url, config('app.check_timeout')) ?
                 $this->status | $key :
                 $this->status ^ $key;
         }

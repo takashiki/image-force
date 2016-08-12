@@ -2,7 +2,8 @@
 
 namespace App\Console;
 
-use App\Console\Commands\Test;
+use App\Console\Commands\CheckImage;
+use App\Console\Commands\CheckQueue;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -14,8 +15,9 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        // Commands\Inspire::class,
-        Test::class,
+        Commands\Inspire::class,
+        CheckImage::class,
+        CheckQueue::class,
     ];
 
     /**
@@ -26,7 +28,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->command('check:image')
+            ->daily();
+
+        $schedule->command('check:queue')
+            ->everyFiveMinutes();
     }
 }

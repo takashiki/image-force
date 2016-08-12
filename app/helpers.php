@@ -1,5 +1,8 @@
 <?php
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
+
 if (!function_exists('is_image')) {
     function is_image($mimeType)
     {
@@ -7,16 +10,41 @@ if (!function_exists('is_image')) {
     }
 }
 
-if (!function_exists('get_status_code')) {
-    function get_status_code($url, $timeout = 10)
+if (!function_exists('is_available')) {
+    function is_available($url, $timeout = 10)
     {
         try {
-            return (new \GuzzleHttp\Client())->head($url, [
+            return (new Client())->head($url, [
                 'timeout' => $timeout,
                 'connect_timeout' => $timeout,
-            ])->getStatusCode();
+            ])->getStatusCode() === 200;
         } catch (Exception $e) {
-            return 0;
+            return false;
+        }
+    }
+}
+
+if (!function_exists('are_available')) {
+    function are_available($urls, $timeout = 10)
+    {
+        $client = new Client([
+            'timeout' => $timeout,
+            'connect_timeout' => $timeout,
+        ]);
+        $promises = array_map(function ($url) use ($client) {
+            return $client->getAsync($url);
+        }, $urls);
+
+        try {
+            $results = Promise\settle($promises)->wait();
+
+            return array_map(function ($result) {
+                return $result['value']->getStatusCode() === 200;
+            }, $results);
+        } catch (Exception $e) {
+            return array_map(function ($url) {
+                return false;
+            }, $urls);
         }
     }
 }

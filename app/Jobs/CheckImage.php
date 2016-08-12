@@ -28,6 +28,6 @@ class CheckImage extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $this->image->check();
+        $this->image->checkMulti();
     }
 }

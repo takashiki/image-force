@@ -80,7 +80,41 @@ class Image extends \Eloquent
             $this->copy_count -= $copy->getAvailability() !== ImageCopies::AVAILABLE ? 1 : 0;
         }
 
-        if ($this->copy_count < 3) {
+        $this->checkDuplicate();
+    }
+
+    /**
+     * 批量检测时只检测http或https其中之一，因为绝大多数情况下同图床的图片这两者的可用性是相同的
+     */
+    public function checkMulti()
+    {
+        $copies = $this->getAvailableCopies();
+        $images = [];
+        foreach ($copies as $key => $copy) {
+            $images[$key] = $copy->getUrl();
+        }
+
+        $results = are_available($images, config('app.check_timeout'));
+
+        $avail_count = count(array_filter($results));
+        if ($avail_count == 0) {
+            $this->check();
+            return;
+        }
+        $this->setCopyCount($avail_count);
+
+        foreach ($results as $key => $available) {
+            if (!$available) {
+                $copies[$key]->setAvailability(ImageCopies::UNAVAILABLE);
+            }
+        }
+
+        $this->checkDuplicate();
+    }
+
+    public function checkDuplicate()
+    {
+        if ($this->copy_count < ImageStorage::count()) {
             $this->duplicate();
         }
     }
@@ -89,11 +123,11 @@ class Image extends \Eloquent
     {
         $copy = $this->firstAvailableCopy();
         if (!$copy) {
-            throw new \Exception('Boom!');
+            throw new \Exception("Boom! Image id: {$this->id}");
         }
 
         foreach (ImageStorage::getUploaders() as $id => $uploader) {
-            if (!ImageCopies::where(['image_id' => $this->id, 'storage_id' => $id])->first()) {
+            if (!ImageCopies::avail()->where(['image_id' => $this->id, 'storage_id' => $id])->first()) {
                 ImageCopies::storage($this, $copy->getUrl(), $id);
             }
         }
@@ -118,6 +152,13 @@ class Image extends \Eloquent
     public function increaseCopyCount()
     {
         ++$this->copy_count;
+
+        return $this->save();
+    }
+
+    public function setCopyCount($count)
+    {
+        $this->copy_count = $count;
 
         return $this->save();
     }
