@@ -68,7 +68,7 @@ class Image extends \Eloquent
             if (!ImageCopies::storage($image, $file, ImageStorage::SMMS)) {
                 return false;
             }
-            dispatch(new DuplicateImage($image));
+            dispatch((new DuplicateImage($image))->onQueue('duplicate'));
         }
 
         return $image;
@@ -141,7 +141,7 @@ class Image extends \Eloquent
     public function getRealUrl($scheme = 'relative')
     {
         if (\Cache::add("image_check_{$this->id}", true, config('app.check_interval'))) {
-            dispatch(new CheckImage($this));
+            dispatch((new CheckImage($this))->onQueue('check'));
         }
         $copy = $this->firstAvailableCopy();
         $copy->increaseAccessCount();

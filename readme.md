@@ -35,7 +35,8 @@ add supervisor config:
 ```
 [program:image-force-worker]
 process_name=%(program_name)s_%(process_num)02d
-command=/path/to/php /path/to/image-force/artisan queue:work --sleep=3 --tries=3 --daemon
+command=/path/to/php /path/to/image-force/artisan queue:work 
+--sleep=1 --tries=3 --daemon --queue=duplicate,check,default 
 autostart=true
 autorestart=true
 user=root
