@@ -212,4 +212,6 @@ return [
     'check_interval' => env('CHECK_INTERVAL', 1440),
     //检测图片可用性的超时时间（单位：秒）
     'check_timeout' => env('CHECK_TIMEOUT', 10),
+    //默认图床
+    'default_storage' => env('DEFAULT_STORAGE', 1),
 ];

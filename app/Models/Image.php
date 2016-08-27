@@ -65,7 +65,7 @@ class Image extends \Eloquent
         }
 
         if ($image->copy_count < 1) {
-            if (!ImageCopies::storage($image, $file, ImageStorage::SMMS)) {
+            if (!ImageCopies::storage($image, $file, config('app.default_storage'))) {
                 return false;
             }
             dispatch((new DuplicateImage($image))->onQueue('duplicate'));
