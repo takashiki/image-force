@@ -53,7 +53,10 @@ class Image extends \Eloquent
      */
     public function firstAvailableCopy()
     {
-        return $this->copies()->where('status', ImageCopies::AVAILABLE)->first();
+        return $this->copies()
+            ->where('status', ImageCopies::AVAILABLE)
+            ->orderByRaw('FIELD(`storage_id`, '.ImageStorage::preferOrder().')')
+            ->first();
     }
 
     public static function getModel($file)

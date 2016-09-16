@@ -14,10 +14,15 @@ class ImageStorage extends Model
     const NIUPIC = 3;
 
     protected static $uploaders = [
-        self::SMMS => SmmsUploader::class,
         self::SINA => SinaUploader::class,
+        self::SMMS => SmmsUploader::class,
         self::NIUPIC => NiupicUploader::class,
     ];
+
+    public static function preferOrder()
+    {
+        return implode(', ', array_keys(static::$uploaders));
+    }
 
     public static function count()
     {
