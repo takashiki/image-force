@@ -21,7 +21,7 @@ class ImageStorage extends Model
 
     public static function preferOrder()
     {
-        return implode(', ', array_keys(static::$uploaders));
+        return config('app.storage_order', implode(', ', array_keys(static::$uploaders)));
     }
 
     public static function count()
