@@ -143,13 +143,15 @@ class Image extends \Eloquent
 
     public function getRealUrl($scheme = 'relative')
     {
-        if (\Cache::add("image_check_{$this->id}", true, config('app.check_interval'))) {
-            dispatch((new CheckImage($this))->onQueue('check'));
-        }
         $copy = $this->firstAvailableCopy();
         $copy->increaseAccessCount();
+        $url = $copy->getUrl($scheme);
 
-        return $copy->getUrl($scheme);
+        if (\Cache::add("image_check_{$this->id}", $url, config('app.check_interval'))) {
+            dispatch((new CheckImage($this))->onQueue('check'));
+        }
+
+        return $url;
     }
 
     public function increaseCopyCount()
